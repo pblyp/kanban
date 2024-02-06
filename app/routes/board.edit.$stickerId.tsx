@@ -60,7 +60,6 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
     const spent = Number(spentHours);
 
     const Sticker = await updateSticker({ id: Number(params.stickerId), summary, title, estimate: est, spentHours: spent, userId });
-    console.log(est, spent, Sticker.spentHours, Sticker.estimate)
     return redirect(`/board/${Sticker.id}`);
 };
 
