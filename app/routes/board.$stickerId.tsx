@@ -7,7 +7,7 @@ import {
     useLoaderData,
     useRouteError,
 } from "@remix-run/react";
-import { create } from "domain";
+import { marked } from "marked";
 import invariant from "tiny-invariant";
 import { deleteSticker, getSticker, moveSticker } from "~/models/sticker.server";
 
@@ -21,7 +21,8 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
     if (!sticker) {
         throw new Response("Not Found", { status: 404 });
     }
-    return json({ sticker });
+    const html = await marked(sticker.summary);
+    return json({ sticker, html });;
 };
 
 export const action = async ({ params, request }: ActionFunctionArgs) => {
@@ -52,7 +53,7 @@ export default function stickerDetailsPage() {
     return (
         <div>
             <h3 className="text-2xl font-bold">{data.sticker.title}</h3>
-            <p className="py-6">{data.sticker.summary}</p>
+            <div className="py-6" dangerouslySetInnerHTML={{ __html: data.html }}></div>
             {data.sticker.estimate ? <p className="">Estimated time: {data.sticker.estimate} hours</p> : null}
             {data.sticker.spentHours ? <p className="">Hours spent: {data.sticker.spentHours} hours</p> : null}
             {startedAt ? <p className="pt-2">Started: {startedAt.toDateString()}</p> : null}

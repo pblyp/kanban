@@ -1,6 +1,7 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
+import { marked } from "marked";
 import { useRef } from "react";
 import invariant from "tiny-invariant";
 
@@ -15,7 +16,8 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
     if (!sticker) {
         throw new Response("Not Found", { status: 404 });
     }
-    return json({ sticker });
+    const html = await marked(sticker.summary);
+    return json({ sticker, html });
 };
 
 export const action = async ({ params, request }: ActionFunctionArgs) => {
