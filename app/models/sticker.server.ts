@@ -8,7 +8,7 @@ export function getSticker({
     userId: User["id"];
 }) {
     return prisma.sticker.findFirst({
-        select: { id: true, summary: true, title: true, createdAt: true, updatedAt: true, stage: true, estimate: true, spentHours: true },
+        select: { id: true, summary: true, title: true, createdAt: true, updatedAt: true, stage: true, estimate: true, spentHours: true, startedAt: true, endedAt: true },
         where: { id, userId },
     });
 }
@@ -59,19 +59,22 @@ export function updateSticker({
     summary,
     estimate,
     spentHours,
+    startedAt,
+    endedAt,
     userId,
-}: Pick<Sticker, "id" | "title" | "summary" | "estimate" | "spentHours"> & {
+}: Pick<Sticker, "id" | "title" | "summary" | "estimate" | "spentHours" | "startedAt" | "endedAt"> & {
     userId: User["id"];
 }) {
-    console.log(estimate, spentHours);
     return prisma.sticker.update({
-        select: { id: true, summary: true, title: true, createdAt: true, updatedAt: true, estimate: true, spentHours: true },
+        select: { id: true, summary: true, title: true, createdAt: true, updatedAt: true, estimate: true, spentHours: true, startedAt: true, endedAt: true },
         where: { id },
         data: {
             title,
             summary,
             estimate,
             spentHours,
+            startedAt,
+            endedAt
         }
     })
 }

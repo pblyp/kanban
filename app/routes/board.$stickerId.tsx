@@ -7,6 +7,7 @@ import {
     useLoaderData,
     useRouteError,
 } from "@remix-run/react";
+import { create } from "domain";
 import invariant from "tiny-invariant";
 import { deleteSticker, getSticker, moveSticker } from "~/models/sticker.server";
 
@@ -43,14 +44,21 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
 export default function stickerDetailsPage() {
     const data = useLoaderData<typeof loader>();
 
+    const startedAt = data.sticker.startedAt ? new Date(data.sticker.startedAt) : undefined;
+    const endedAt = data.sticker.endedAt ? new Date(data.sticker.endedAt) : undefined;
+    const createdAt = data.sticker.createdAt ? new Date(data.sticker.createdAt) : undefined;
+    const updatedAt = data.sticker.updatedAt ? new Date(data.sticker.updatedAt) : undefined;
+
     return (
         <div>
             <h3 className="text-2xl font-bold">{data.sticker.title}</h3>
             <p className="py-6">{data.sticker.summary}</p>
             {data.sticker.estimate ? <p className="">Estimated time: {data.sticker.estimate} hours</p> : null}
             {data.sticker.spentHours ? <p className="">Hours spent: {data.sticker.spentHours} hours</p> : null}
-            <p className="pt-2">Created: {data.sticker.createdAt} </p>
-            <p className="">Modified: {data.sticker.updatedAt || "null"}</p>
+            {startedAt ? <p className="pt-2">Started: {startedAt.toDateString()}</p> : null}
+            {endedAt ? <p className="">Ended: {endedAt.toDateString()}</p> : null}
+            {createdAt ? <p className="pt-2">Created: {createdAt.toUTCString()}</p> : null}
+            {updatedAt ? <p className="">Modified: {updatedAt.toUTCString() || "never"}</p> : null}
             <hr className="my-4" />
             <div className="flex items-center justify-between">
                 <Link to={"/board/edit/" + data.sticker.id} className="rounded bg-blue-500 px-4 py-2 mx-2 text-white hover:bg-blue-600 focus:bg-blue-400">

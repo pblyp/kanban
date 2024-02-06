@@ -26,6 +26,10 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
     const summary = formData.get("summary");
     const estimate = formData.get("estimate");
     const spentHours = formData.get("spentHours");
+    const startedAt = formData.get("taskstart");
+    const endedAt = formData.get("taskend");
+
+    console.log(startedAt, endedAt)
 
 
     if (typeof title !== "string" || title.length === 0) {
@@ -58,8 +62,10 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
 
     const est = Number(estimate);
     const spent = Number(spentHours);
+    const start = startedAt ? new Date(startedAt) : null;
+    const end = endedAt ? new Date(endedAt) : null;
 
-    const Sticker = await updateSticker({ id: Number(params.stickerId), summary, title, estimate: est, spentHours: spent, userId });
+    const Sticker = await updateSticker({ id: Number(params.stickerId), summary, title, estimate: est, spentHours: spent, startedAt: start, endedAt: end, userId });
     return redirect(`/board/${Sticker.id}`);
 };
 
@@ -154,6 +160,9 @@ export default function NewStickerPage() {
                     </div>
                 ) : null}
             </div>
+
+            <input type="date" id="start" name="taskstart" min="1970-01-01" />
+            <input type="date" id="start" name="taskend" min="1970-01-01" />
 
             <div className="text-right">
                 <button
