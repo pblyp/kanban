@@ -43,6 +43,8 @@ model Sticker {
   title    String
   summary  String
   assignee String?
+  
+  stage Int
 
   externalUrl String?
 
@@ -56,3 +58,4 @@ model Sticker {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String
 }
+

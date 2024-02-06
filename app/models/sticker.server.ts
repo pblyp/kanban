@@ -16,7 +16,37 @@ export function getSticker({
 export function getStickerListItems({ userId }: { userId: User["id"] }) {
     return prisma.sticker.findMany({
         where: { userId },
-        select: { id: true, title: true },
+        select: { id: true, title: true, stage: true },
         orderBy: { updatedAt: "desc" },
+    });
+}
+
+export function createSticker({
+    title,
+    summary,
+    userId,
+}: Pick<Sticker, "title" | "summary"> & {
+    userId: User["id"];
+}) {
+    return prisma.sticker.create({
+        data: {
+            title,
+            summary,
+            stage: 0,
+            user: {
+                connect: {
+                    id: userId,
+                },
+            },
+        },
+    });
+}
+
+export function deleteSticker({
+    id,
+    userId,
+}: Pick<Sticker, "id"> & { userId: User["id"] }) {
+    return prisma.sticker.deleteMany({
+        where: { id, userId },
     });
 }
