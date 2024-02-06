@@ -39,7 +39,7 @@ export default function BoardPage() {
             </header>
 
             <main className="flex h-fit bg-white flex-col-reverse xl:flex-row px-4 pb-2">
-                <div className="h-full border-r bg-gray-50 basis-3/5 flex flex-row">
+                <div className="min-h-screen border-r bg-gray-50 basis-3/5 flex flex-row">
                     <div className="h-full basis-1/4 w-1/4 border-x bg-gray-50">
                         <h1 className="p-4 text-lg">Backlog</h1>
                         <hr />
