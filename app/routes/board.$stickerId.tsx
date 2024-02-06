@@ -8,7 +8,7 @@ import {
     useRouteError,
 } from "@remix-run/react";
 import invariant from "tiny-invariant";
-import { deleteSticker, getSticker, moveSticker, updateSticker } from "~/models/sticker.server";
+import { deleteSticker, getSticker, moveSticker } from "~/models/sticker.server";
 
 import { requireUserId } from "~/session.server";
 
@@ -32,10 +32,11 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
 
     if (move) {
         await moveSticker({id: Number(params.stickerId), userId, stage: Number(move)});
+        return redirect("/board/"+params.stickerId);
     } else if (formData.get("delete") === "delete") {
         await deleteSticker({ id: Number(params.stickerId), userId });
+        return redirect("/board");
     }
-
     return redirect("/board");
 };
 
@@ -46,11 +47,13 @@ export default function stickerDetailsPage() {
         <div>
             <h3 className="text-2xl font-bold">{data.sticker.title}</h3>
             <p className="py-6">{data.sticker.summary}</p>
-            <p className="py-6">{data.sticker.createdAt}</p>
-            <p className="py-1">{data.sticker.updatedAt || "null"}</p>
+            {data.sticker.estimate ? <p className="">Estimated time: {data.sticker.estimate} hours</p> : null}
+            {data.sticker.spentHours ? <p className="">Hours spent: {data.sticker.spentHours} hours</p> : null}
+            <p className="pt-2">Created: {data.sticker.createdAt} </p>
+            <p className="">Modified: {data.sticker.updatedAt || "null"}</p>
             <hr className="my-4" />
             <div className="flex items-center justify-between">
-                <Link to={"/board/edit/" + data.sticker.id} className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400">
+                <Link to={"/board/edit/" + data.sticker.id} className="rounded bg-blue-500 px-4 py-2 mx-2 text-white hover:bg-blue-600 focus:bg-blue-400">
                     Edit
                 </Link>
                 <Form method="post">
@@ -58,17 +61,17 @@ export default function stickerDetailsPage() {
                         type="submit"
                         name="move"
                         value={data.sticker.stage > 0 ? data.sticker.stage-1 : 0}
-                        className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"
+                        className="rounded bg-blue-500 px-4 py-2 mx-2 text-white hover:bg-blue-600 focus:bg-blue-400"
                     >
-                        L
+                        Move left
                     </button>
                     <button
                         type="submit"
                         name="move"
                         value={data.sticker.stage < 3 ? data.sticker.stage+1 : 3}
-                        className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"
+                        className="rounded bg-blue-500 px-4 py-2 mx-2 text-white hover:bg-blue-600 focus:bg-blue-400"
                     >
-                        R
+                        Move right
                     </button>
                 </Form>
                 <Form method="post">
@@ -76,7 +79,7 @@ export default function stickerDetailsPage() {
                         type="submit"
                         name="delete"
                         value="delete"
-                        className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"
+                        className="rounded bg-blue-500 px-4 py-2 mx-2 text-white hover:bg-blue-600 focus:bg-blue-400"
                     >
                         Delete
                     </button>

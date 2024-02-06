@@ -1,10 +1,10 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import invariant from "tiny-invariant";
 
-import { createSticker, getSticker, updateSticker } from "~/models/sticker.server";
+import { getSticker, updateSticker } from "~/models/sticker.server";
 import { requireUserId } from "~/session.server";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
@@ -24,23 +24,43 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
     const formData = await request.formData();
     const title = formData.get("title");
     const summary = formData.get("summary");
+    const estimate = formData.get("estimate");
+    const spentHours = formData.get("spentHours");
+
 
     if (typeof title !== "string" || title.length === 0) {
         return json(
-            { errors: { summary: null, title: "Title is required" } },
+            { error: "Title is required" },
             { status: 400 },
         );
     }
 
     if (typeof summary !== "string" || summary.length === 0) {
         return json(
-            { errors: { summary: "summary is required", title: null } },
+            { error: "Summary is required" },
             { status: 400 },
         );
     }
 
-    const Sticker = await updateSticker({ id: Number(params.stickerId), summary, title, userId });
+    if (title.length > 100) {
+        return json(
+            { error: "Title is longer than 100 symbols" },
+            { status: 400 },
+        );
+    }
 
+    if (summary.length > 1337) {
+        return json(
+            { error: "Summary is longer than 1337 symbols" },
+            { status: 400 },
+        );
+    }
+
+    const est = Number(estimate);
+    const spent = Number(spentHours);
+
+    const Sticker = await updateSticker({ id: Number(params.stickerId), summary, title, estimate: est, spentHours: spent, userId });
+    console.log(est, spent, Sticker.spentHours, Sticker.estimate)
     return redirect(`/board/${Sticker.id}`);
 };
 
@@ -49,14 +69,8 @@ export default function NewStickerPage() {
     const actionData = useActionData<typeof action>();
     const titleRef = useRef<HTMLInputElement>(null);
     const summaryRef = useRef<HTMLTextAreaElement>(null);
-
-    useEffect(() => {
-        if (actionData?.errors?.title) {
-            titleRef.current?.focus();
-        } else if (actionData?.errors?.summary) {
-            summaryRef.current?.focus();
-        }
-    }, [actionData]);
+    const estimateRef = useRef<HTMLInputElement>(null);
+    const spentHoursRef = useRef<HTMLInputElement>(null);
 
     return (
         <Form
@@ -75,18 +89,13 @@ export default function NewStickerPage() {
                         ref={titleRef}
                         name="title"
                         className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
-                        aria-invalid={actionData?.errors?.title ? true : undefined}
+                        aria-invalid={actionData?.error ? true : undefined}
                         aria-errormessage={
-                            actionData?.errors?.title ? "title-error" : undefined
+                            actionData?.error ? "title-error" : undefined
                         }
                         defaultValue={data.sticker.title}
                     />
                 </label>
-                {actionData?.errors?.title ? (
-                    <div className="pt-1 text-red-700" id="title-error">
-                        {actionData.errors.title}
-                    </div>
-                ) : null}
             </div>
 
             <div>
@@ -97,16 +106,52 @@ export default function NewStickerPage() {
                         name="summary"
                         rows={8}
                         className="w-full flex-1 rounded-md border-2 border-blue-500 px-3 py-2 text-lg leading-6"
-                        aria-invalid={actionData?.errors?.summary ? true : undefined}
+                        aria-invalid={actionData?.error ? true : undefined}
                         aria-errormessage={
-                            actionData?.errors?.summary ? "summary-error" : undefined
+                            actionData?.error ? "summary-error" : undefined
                         }
                         defaultValue={data.sticker.summary}
                     />
                 </label>
-                {actionData?.errors?.summary ? (
+            </div>
+
+            <div>
+                <label className="flex w-full flex-col gap-1">
+                    <span>estimate in hours: </span>
+                    <input
+                        ref={estimateRef}
+                        type="number"
+                        min={0}
+                        name="estimate"
+                        className="w-full flex-1 rounded-md border-2 border-blue-500 px-3 py-2 text-lg leading-6"
+                        aria-invalid={actionData?.error ? true : undefined}
+                        aria-errormessage={
+                            actionData?.error ? "summary-error" : undefined
+                        }
+                        defaultValue={data.sticker.estimate || 0}
+                    />
+                </label>
+            </div>
+
+            <div>
+                <label className="flex w-full flex-col gap-1">
+                    <span>hours spent: </span>
+                    <input
+                        ref={spentHoursRef}
+                        type="number"
+                        min={0}
+                        name="spentHours"
+                        className="w-full flex-1 rounded-md border-2 border-blue-500 px-3 py-2 text-lg leading-6"
+                        aria-invalid={actionData?.error ? true : undefined}
+                        aria-errormessage={
+                            actionData?.error ? "summary-error" : undefined
+                        }
+                        defaultValue={data.sticker.spentHours || 0}
+                    />
+                </label>
+                {actionData?.error ? (
                     <div className="pt-1 text-red-700" id="summary-error">
-                        {actionData.errors.summary}
+                        {actionData.error}
                     </div>
                 ) : null}
             </div>

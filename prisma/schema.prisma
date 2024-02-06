@@ -48,7 +48,8 @@ model Sticker {
 
   externalUrl String?
 
-  estimate  DateTime?
+  estimate  Int?
+  spentHours Int?
   startedAt DateTime?
   endedAt   DateTime?
 
