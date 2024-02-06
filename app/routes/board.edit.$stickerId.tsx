@@ -1,12 +1,24 @@
-import type { ActionFunctionArgs } from "@remix-run/node";
+import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
+import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { useEffect, useRef } from "react";
+import invariant from "tiny-invariant";
 
-import { createSticker } from "~/models/sticker.server";
+import { createSticker, getSticker, updateSticker } from "~/models/sticker.server";
 import { requireUserId } from "~/session.server";
 
-export const action = async ({ request }: ActionFunctionArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
+    const userId = await requireUserId(request);
+    invariant(params.stickerId, "stickerId not found");
+
+    const sticker = await getSticker({ id: Number(params.stickerId), userId });
+    if (!sticker) {
+        throw new Response("Not Found", { status: 404 });
+    }
+    return json({ sticker });
+};
+
+export const action = async ({ params, request }: ActionFunctionArgs) => {
     const userId = await requireUserId(request);
 
     const formData = await request.formData();
@@ -27,12 +39,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         );
     }
 
-    const Sticker = await createSticker({ summary, title, userId });
+    const Sticker = await updateSticker({ id: Number(params.stickerId), summary, title, userId });
 
     return redirect(`/board/${Sticker.id}`);
 };
 
 export default function NewStickerPage() {
+    const data = useLoaderData<typeof loader>();
     const actionData = useActionData<typeof action>();
     const titleRef = useRef<HTMLInputElement>(null);
     const summaryRef = useRef<HTMLTextAreaElement>(null);
@@ -66,6 +79,7 @@ export default function NewStickerPage() {
                         aria-errormessage={
                             actionData?.errors?.title ? "title-error" : undefined
                         }
+                        defaultValue={data.sticker.title}
                     />
                 </label>
                 {actionData?.errors?.title ? (
@@ -87,6 +101,7 @@ export default function NewStickerPage() {
                         aria-errormessage={
                             actionData?.errors?.summary ? "summary-error" : undefined
                         }
+                        defaultValue={data.sticker.summary}
                     />
                 </label>
                 {actionData?.errors?.summary ? (
