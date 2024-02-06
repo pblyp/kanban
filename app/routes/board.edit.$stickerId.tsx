@@ -31,9 +31,6 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
     const startedAt = formData.get("taskstart");
     const endedAt = formData.get("taskend");
 
-    console.log(startedAt, endedAt)
-
-
     if (typeof title !== "string" || title.length === 0) {
         return json(
             { error: "Title is required" },
@@ -79,6 +76,9 @@ export default function NewStickerPage() {
     const estimateRef = useRef<HTMLInputElement>(null);
     const spentHoursRef = useRef<HTMLInputElement>(null);
 
+    const start = data.sticker.startedAt ? data.sticker.startedAt.split('T')[0] : undefined;
+    const end = data.sticker.endedAt ? data.sticker.endedAt.split('T')[0] : undefined;
+
     return (
         <Form
             method="post"
@@ -107,7 +107,7 @@ export default function NewStickerPage() {
 
             <div>
                 <label className="flex w-full flex-col gap-1">
-                    <span>summary: </span>
+                    <span>Summary: </span>
                     <textarea
                         ref={summaryRef}
                         name="summary"
@@ -124,7 +124,7 @@ export default function NewStickerPage() {
 
             <div>
                 <label className="flex w-full flex-col gap-1">
-                    <span>estimate in hours: </span>
+                    <span>Estimated hours: </span>
                     <input
                         ref={estimateRef}
                         type="number"
@@ -142,7 +142,7 @@ export default function NewStickerPage() {
 
             <div>
                 <label className="flex w-full flex-col gap-1">
-                    <span>hours spent: </span>
+                    <span>Spent hours: </span>
                     <input
                         ref={spentHoursRef}
                         type="number"
@@ -163,8 +163,15 @@ export default function NewStickerPage() {
                 ) : null}
             </div>
 
-            <input type="date" id="start" name="taskstart" min="1970-01-01" />
-            <input type="date" id="start" name="taskend" min="1970-01-01" />
+            <div>
+                <label className="flex w-full flex-col gap-1">
+                    <span>Start: </span>
+                    <input type="date" id="start" name="taskstart" min="1970-01-01" defaultValue={start} />
+                    <span>End: </span>
+                    <input type="date" id="start" name="taskend" min="1970-01-01" defaultValue={end} />
+                </label>
+            </div>
+
 
             <div className="text-right">
                 <button
