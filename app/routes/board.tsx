@@ -27,6 +27,12 @@ export default function BoardPage() {
                     <Link to="newtask" className="rounded bg-slate-600 px-4 py-2 mx-2 text-blue-100 hover:bg-blue-500 active:bg-blue-600">
                         +Task
                     </Link>
+                    <Link to="export" reloadDocument className="rounded bg-slate-600 px-4 py-2 mx-2 text-blue-100 hover:bg-blue-500 active:bg-blue-600">
+                        Export
+                    </Link>
+                    <Link to="import" reloadDocument className="rounded bg-slate-600 px-4 py-2 mx-2 text-blue-100 hover:bg-blue-500 active:bg-blue-600">
+                        Import
+                    </Link>
                     <Form action="/logout" method="post">
                         <button
                             type="submit"
