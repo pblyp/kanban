@@ -6,7 +6,7 @@ Built with [Remix Indie Stack](https://github.com/remix-run/indie-stack)
 
 ## Development
 
-- Initial setup:
+- Edit ```.env.example```, copy it to ```.env``` and run
 
   ```sh
   npm run setup
